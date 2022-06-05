@@ -20,13 +20,9 @@ async function updateRichPresence(songName, artistName, timeMax, currentTime, pl
 }
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-    chrome.tabs.get(tabId, async (tab) => {
-        if(tab.audible) {
-            chrome.tabs.sendMessage(tabId, {
-                message: 'send'
-            });
-        }
-    })
+    chrome.tabs.sendMessage(tabId, {
+        message: 'send'
+    });
 });
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {

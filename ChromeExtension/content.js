@@ -1,4 +1,5 @@
-let timer = 0
+let timer = 5000
+
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     sendResponse({
@@ -9,12 +10,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 	}
 });
 
-function wait(ms=1000) {
-    timer = 1
-    setTimeout(function(){
-        timer = 0
-    }, ms);
+function fix() {
+    setInterval(function(){
+        if(document.getElementsByClassName("byline style-scope ytmusic-player-bar complex-string")[0] !== undefined) sendMessage();
+    }, timer);
 }
+
+fix()
 
 function sendMessage() {
 	const songName = document.getElementsByClassName("title style-scope ytmusic-player-bar")[0].innerHTML;
