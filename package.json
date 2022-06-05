@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node .",
+    "start_debug": "debug_mode=true node .",
     "dev": "nodemon dev.js"
   },
   "author": "Alexis060306leko",

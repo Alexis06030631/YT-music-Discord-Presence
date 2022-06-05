@@ -51,6 +51,7 @@ function update(playing, song, artist, timeNow, timeMax, url) {
   if(playing) {
     Object.assign(data, {startTimestamp: timeNow, endTimestamp: timeMax})
   }
+  if(process.env.debug_mode) console.log(`${new Date().toLocaleTimeString()} Presence updated: Song=${song} author=${artist} playing=${playing}`);
   client.updatePresence(data);
 }
 
