@@ -1,0 +1,30 @@
+{
+    "manifest_version": 3,
+  
+    "name": "YT Music Discord Presence",
+    "description": "Shows your current music in Discord as a presence.",
+    "version": "1.4",
+
+    "content_scripts" : [{
+      "matches": ["https://music.youtube.com/*"],
+      "js": ["content.js"]
+    }],
+      
+    "background": {
+      "service_worker": "background.js"
+    },
+
+    "host_permissions": ["https://music.youtube.com/*", "http://localhost/*"],
+    "permissions": [
+      "tabs",
+      "activeTab"
+    ],
+  
+  
+    "icons": {
+      "16": "logo.webp",
+      "48": "logo.webp",
+      "128": "logo.webp"
+    }
+  
+  }
