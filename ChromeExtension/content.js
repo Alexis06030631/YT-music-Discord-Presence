@@ -5,6 +5,14 @@ ws.addEventListener('open', function (event) {
     console.log('Connected to web socket server !');
 });
 
+ws.addEventListener('message', function (event) {
+    switch (event.data) {
+        case 'refresh':
+            sendMessage();
+            break;
+    }
+});
+
 // Check if web socket is connected
 function checkWs(){
     if(ws.readyState !== 1){
