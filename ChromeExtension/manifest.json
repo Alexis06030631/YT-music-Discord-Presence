@@ -9,15 +9,12 @@
       "matches": ["https://music.youtube.com/*"],
       "js": ["content.js"]
     }],
-      
-    "background": {
-      "service_worker": "background.js"
-    },
 
     "host_permissions": ["https://music.youtube.com/*", "http://localhost/*"],
     "permissions": [
-      "tabs",
-      "activeTab"
+        "tabs",
+        "activeTab",
+        "scripting"
     ],
   
   
