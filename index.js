@@ -33,44 +33,51 @@ wss.on('connection', function connection(ws, req) {
 });
 
 
+let song = 'Waiting for music...';
+let tempTime = '0:00';
+let hidden = false
+
+console.log('Starting YT music presence...')
+
+
 
 // Update Rich Presence
 function update(playing, song, artist, timeNow, timeMax, url) {
-  artist = artist.replaceAll('\n', '').split('•')[0];
+    artist = artist.replaceAll('\n', '').split('•')[0];
 
 
-  let data = {
-    state: `${artist}${playing? '': '\n • Paused'}`,
-    details: song,
-    largeImageKey: 'ytmusic',
-    largeImageText: 'YouTube Music',
-    smallImageKey: playing ? 'play': 'pause',
-    smallImageText: playing ? 'Playing' : 'Paused',
-    instance: true,
-    buttons: [
-      {
-        label: "Listen now",
-        url: url
-      }
-    ]
-  }
-  if(playing) {
-    Object.assign(data, {startTimestamp: timeNow, endTimestamp: timeMax})
-  }
-  if(process.env.debug_mode) console.log(`${new Date().toLocaleTimeString()} Presence updated: Song=${song} author=${artist} playing=${playing}`);
-  client.updatePresence(data);
+    let data = {
+        state: `${artist}${playing? '': '\n • Paused'}`,
+        details: song,
+        largeImageKey: 'ytmusic',
+        largeImageText: 'YouTube Music',
+        smallImageKey: playing ? 'play': 'pause',
+        smallImageText: playing ? 'Playing' : 'Paused',
+        instance: true,
+        buttons: [
+            {
+                label: "Listen now",
+                url: url
+            }
+        ]
+    }
+    if(playing) {
+        Object.assign(data, {startTimestamp: timeNow, endTimestamp: timeMax})
+    }
+    if(process.env.debug_mode) console.log(`${new Date().toLocaleTimeString()} Presence updated: Song=${song} author=${artist} playing=${playing}`);
+    client.updatePresence(data);
 }
 
 // Milliseconds to time converter
 function timeToMilli(time) {
-  var temp = Date.now();
-  if(time.split(':').length === 2) {
-    temp += Math.round(parseFloat(time.split(':')[0]) * 60000);
-    temp += Math.round(parseFloat(time.split(':')[1]) * 1000);
-  } else if (time.split(':').length === 3) {
-    temp += Math.round(parseFloat(time.split(':')[0]) * 3600000);
-    temp += Math.round(parseFloat(time.split(':')[1]) * 60000);
-    temp += Math.round(parseFloat(time.split(':')[2]) * 1000);
-  }
-  return temp;
+    var temp = Date.now();
+    if(time.split(':').length === 2) {
+        temp += Math.round(parseFloat(time.split(':')[0]) * 60000);
+        temp += Math.round(parseFloat(time.split(':')[1]) * 1000);
+    } else if (time.split(':').length === 3) {
+        temp += Math.round(parseFloat(time.split(':')[0]) * 3600000);
+        temp += Math.round(parseFloat(time.split(':')[1]) * 60000);
+        temp += Math.round(parseFloat(time.split(':')[2]) * 1000);
+    }
+    return temp;
 }
