@@ -1,58 +1,96 @@
-const client = require('discord-rich-presence')('983039263287414814');
-const port = process.env.PORT || 3000;
-const { WebSocketServer } =  require('ws');
-
-// Start server
-const wss = new WebSocketServer({ port: port });
-wss.on('connection', function connection(ws, req) {
-    console.log(`YT music websocket was connected from ${req.connection.remoteAddress}`);
-
-    ws.on('message', function message(data) {
-        let content = JSON.parse(data);
-        if(content.code === 'update') {
-            if(hidden) return null
-            tempTime = content.timeMax.replace(' ', '');
-            let currentTime = content.currentTime.replace(' ', '');
-            song = content.song
-
-            const timeMax = `${Number(tempTime.split(':')[0]) - Number(currentTime.split(':')[0])}:${Number(tempTime.split(':')[1]) - Number(currentTime.split(':')[1])}`;
-
-            update(content.playing, song, content.artist, Date.now(), timeToMilli(timeMax), content.url);
-        }else if(content.code === 'hide') {
-            if(hidden){
-                ws.send('refresh')
-                hidden = false;
-                console.log(`${new Date().toLocaleTimeString()} Rich presence was reactivated`);
-            }else {
-                client.updatePresence({});
-                hidden = true;
-                console.log(`${new Date().toLocaleTimeString()} Rich presence hidden`);
-            }
-        }
-    });
-});
-
-
-let song = 'Waiting for music...';
-let tempTime = '0:00';
+let launch = false
 let hidden = false
+let tempTime = '0:00';
+let startTimeOut = 3000
+let song = 'Waiting for music...';
 
-console.log('Starting YT music presence...')
+const clientId = '983039263287414814';
+const port = process.env.PORT || 3000;
 
 
+const { WebSocketServer } =  require('ws');
+const RPC = require("discord-rpc");
+
+let client
+
+// Log in to RPC with client id
+connectDiscord()
+function connectDiscord(){
+    launch = true
+    client = new RPC.Client({ transport: 'ipc' });
+    client.on('ready', () => {
+        console.log('Logged to Discord in as', client.user.username);
+        startWbserver()
+    });
+    client.login({ clientId });
+}
+
+
+process.on('uncaughtException', function(err) {
+    if(launch){
+        console.log(`Fail to connect to Discord, retrying in ${startTimeOut}ms...`);
+        setTimeout(connectDiscord, startTimeOut);
+        if (startTimeOut <= 180000) startTimeOut *= 2;
+    }else {
+        console.log(err)
+        process.exit(1);
+    }
+})
+
+return null
+
+function startWbserver(){
+    launch = false
+    console.log('Starting YT music presence...')
+    // Start server
+    const wss = new WebSocketServer({ port: port });
+    wss.on('connection', function connection(ws, req) {
+        console.log(`YT music websocket was connected from ${req.connection.remoteAddress}`);
+
+        ws.on('message', function message(data) {
+            let content = JSON.parse(data);
+            if(content.code === 'update') {
+                if(hidden) return null
+                tempTime = content.timeMax.replace(' ', '');
+                let currentTime = content.currentTime.replace(' ', '');
+                song = content.song
+
+                const timeMax = `${Number(tempTime.split(':')[0]) - Number(currentTime.split(':')[0])}:${Number(tempTime.split(':')[1]) - Number(currentTime.split(':')[1])}`;
+
+                update(content.playing, song, content.artist, Date.now(), timeToMilli(timeMax), content.url);
+            }else if(content.code === 'hide') {
+                if(hidden){
+                    ws.send('refresh')
+                    hidden = false;
+                    console.log(`${new Date().toLocaleTimeString()} Rich presence was reactivated`);
+                }else {
+                    client.request('SET_ACTIVITY', {
+                        pid: process.pid,
+                        activity: {}
+                    });
+                    hidden = true;
+                    console.log(`${new Date().toLocaleTimeString()} Rich presence hidden`);
+                }
+            }
+        });
+    });
+}
 
 // Update Rich Presence
 function update(playing, song, artist, timeNow, timeMax, url) {
     artist = artist.replaceAll('\n', '').split('•')[0];
 
-
     let data = {
         state: `${artist}${playing? '': '\n • Paused'}`,
         details: song,
-        largeImageKey: 'ytmusic',
-        largeImageText: 'YouTube Music',
-        smallImageKey: playing ? 'play': 'pause',
-        smallImageText: playing ? 'Playing' : 'Paused',
+
+        assets: {
+            large_image: 'ytmusic',
+            large_text: 'YouTube Music',
+            small_image: playing ? 'play': 'pause',
+            small_text: playing ? 'Playing' : 'Paused'
+        },
+
         instance: true,
         buttons: [
             {
@@ -62,10 +100,13 @@ function update(playing, song, artist, timeNow, timeMax, url) {
         ]
     }
     if(playing) {
-        Object.assign(data, {startTimestamp: timeNow, endTimestamp: timeMax})
+        Object.assign(data, {timestamps:{start: timeNow, end: timeMax}})
     }
     if(process.env.debug_mode) console.log(`${new Date().toLocaleTimeString()} Presence updated: Song=${song} author=${artist} playing=${playing}`);
-    client.updatePresence(data);
+    client.request('SET_ACTIVITY', {
+        pid: process.pid,
+        activity: data
+    });
 }
 
 // Milliseconds to time converter
