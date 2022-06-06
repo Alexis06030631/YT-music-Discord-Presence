@@ -20,6 +20,13 @@ function checkWs(){
         return false
     }else return true
 }
+
+function hide() {
+    if(!checkWs()) throw new Error('Web socket is not connected !');
+    ws.send(JSON.stringify({code: 'hide'}));
+}
+
+// On webpage change
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     sendResponse({
         response: "Message Received! (content)"
@@ -57,5 +64,29 @@ function sendMessage() {
 
     ws.send(JSON.stringify(data));
 }
-    });
+
+
+docReady(function() {
+    // Add a button to the page to hide the rich presence
+    const pg_player = document.getElementById('player-page');
+    const img = document.createElement("img");
+    img.src = "https://i0.wp.com/socialbarrel.com/wp-content/uploads/2021/09/discord-youtube-integration.png";
+    img.style = 'position: absolute;top: 0px;width: 80px;height: 80px;z-index: 999;margin: 5px;opacity: 0.6;cursor: pointer;';
+    img.setAttribute('id', 'hide-button');
+    pg_player.appendChild(img);
+
+    document.getElementById('hide-button').addEventListener('click', function() {
+        hide();
+    })
+});
+
+
+function docReady(fn) {
+    // see if DOM is already available
+    if (document.readyState === "complete" || document.readyState === "interactive") {
+        // call on next available tick
+        setTimeout(fn, 1);
+    } else {
+        document.addEventListener("DOMContentLoaded", fn);
+    }
 }
