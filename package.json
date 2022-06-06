@@ -10,7 +10,7 @@
   },
   "author": "Alexis060306leko",
   "dependencies": {
-    "discord-rich-presence": "0.0.8",
+    "discord-rpc": "^4.0.1",
     "express": "^4.17.1",
     "ws": "^8.7.0"
   },
