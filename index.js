@@ -28,6 +28,10 @@ function connectDiscord(){
 
 process.on('uncaughtException', function(err) {
     if(launch){
+        //GITHUB CI, ALWAYS GET THIS AS LAST
+        if (process.env.GITHUB_ACTION){
+            process.exit(0)
+        }
         console.log(`Fail to connect to Discord, retrying in ${startTimeOut}ms...`);
         setTimeout(connectDiscord, startTimeOut);
         if (startTimeOut <= 180000) startTimeOut *= 2;
