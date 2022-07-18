@@ -1,0 +1,19 @@
+name: Test nodejs app
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  start-test:
+    name: Start test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 16.6
+      - name: download deps
+        run: npm ci
+      - name: test run
+        run: npm start
