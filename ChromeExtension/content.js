@@ -76,13 +76,11 @@ function wsConnect(){
     ws.addEventListener('error', function(e) {
         UpdateIcon(3)
         destoyIntervals()
-        ws.destroy();
         console.log(e)
     })
     ws.addEventListener('close', function(e) {
         UpdateIcon(3)
         destoyIntervals()
-        ws.destroy();
         console.log(e)
 
     })
@@ -109,6 +107,7 @@ function changeStatus(id) {
             if(UpdateIcon(2)) ws.send(JSON.stringify({code: 'hide'}));
             break
         case 2:
+            initAutoUpdate()
             if(UpdateIcon(1)) ws.send(JSON.stringify({code: 'show'}));
             break
         case 3:
@@ -139,10 +138,13 @@ function sendMessage() {
     ws.send(JSON.stringify(data));
 }
 
+let autoInterval = false
 // Auto update rich presence every x seconds
-const autoInterval = setInterval(function(){
-    if(document.getElementsByClassName("byline style-scope ytmusic-player-bar complex-string")[0] !== undefined){
-        sendMessage();
+setInterval(function(){
+    if(autoInterval){
+        if(document.getElementsByClassName("byline style-scope ytmusic-player-bar complex-string")[0] !== undefined){
+            sendMessage();
+        }
     }
 }, 5000);
 
@@ -156,11 +158,12 @@ function initAutoUpdate(){
             sendMessage();
         }
     });
+    autoInterval = true
 }
 
 function destoyIntervals(){
     try{
-        clearInterval(autoInterval)
+        autoInterval = false
         chrome.runtime.onMessage.removeListener(function(request, sender, sendResponse) {})
     }catch (e){console.log(e)}
 }

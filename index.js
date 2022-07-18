@@ -84,7 +84,7 @@ function update(playing, song, artist, timeNow, timeMax, url) {
 
         assets: {
             large_image: 'ytmusic',
-            large_text: 'YouTube Music',
+            large_text: 'YouTube Music (by Aleжis#7808)',
             small_image: playing ? 'play': 'pause',
             small_text: playing ? 'Playing' : 'Paused'
         },
