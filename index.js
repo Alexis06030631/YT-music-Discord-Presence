@@ -59,18 +59,16 @@ function startWbserver(){
 
                 update(content.playing, song, content.artist, Date.now(), timeToMilli(timeMax), content.url);
             }else if(content.code === 'hide') {
-                if(hidden){
-                    ws.send('refresh')
-                    hidden = false;
-                    console.log(`${new Date().toLocaleTimeString()} Rich presence was reactivated`);
-                }else {
-                    client.request('SET_ACTIVITY', {
-                        pid: process.pid,
-                        activity: {}
-                    });
-                    hidden = true;
-                    console.log(`${new Date().toLocaleTimeString()} Rich presence hidden`);
-                }
+                client.request('SET_ACTIVITY', {
+                    pid: process.pid,
+                    activity: {}
+                });
+                hidden = true;
+                console.log(`${new Date().toLocaleTimeString()} Rich presence hidden`);
+            }else if(content.code === 'show'){
+                ws.send('refresh')
+                hidden = false;
+                console.log(`${new Date().toLocaleTimeString()} Rich presence was reactivated`);
             }
         });
     });
