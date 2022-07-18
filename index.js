@@ -124,3 +124,9 @@ function timeToMilli(time) {
     }
     return temp;
 }
+
+
+//GITHUB CI, ALWAYS GET THIS AS LAST
+if (process.env.GITHUB_ACTION){
+    process.exit(0)
+}
